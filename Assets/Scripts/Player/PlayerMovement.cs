@@ -6,7 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     public CharacterController controllerPlayer;
     public bool iswalking;
-    public float speed = 10f;
+    public float walkSpeed = 5f;
+    public float runSpeed = 10f;
     public float gravity = -9.90f;
     public float groundDistance = 0.4f;
     public float jumpHeigt = 3f;
@@ -25,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 move = transform.right * X + transform.forward * Z;
 
-        controllerPlayer.Move(move * speed * Time.deltaTime);
+        controllerPlayer.Move(move * walkSpeed * Time.deltaTime);
 
         velocity.y += gravity * Time.deltaTime;
 
