@@ -13,13 +13,17 @@ public class Enemy : MonoBehaviour
 
     public float fov = 120f;
     public float viewDistance = 15f;
+    public float wanderRadius = 5f;
+
+    public Vector3 wanderPoint;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        agent.GetComponent<NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
         renderColor = GetComponent<Renderer>();
+        wanderPoint = RandomWanderPoints();
     }
 
     // Update is called once per frame
@@ -33,6 +37,7 @@ public class Enemy : MonoBehaviour
         else
         {
             SearchForPlayer();
+            Wander();
             renderColor.material.color = Color.black;
         }
     }
@@ -43,7 +48,14 @@ public class Enemy : MonoBehaviour
         {
             if(Vector3.Distance(player.transform.position, transform.position) < viewDistance)
             {
-                OnAware();
+                RaycastHit hit;
+                if(Physics.Linecast(transform.position, player.transform.position, out hit, -1))
+                {
+                    if (hit.transform.CompareTag("Player"))
+                    {
+                        OnAware();
+                    }
+                }               
             }
         }
     }
@@ -51,5 +63,25 @@ public class Enemy : MonoBehaviour
     public void OnAware()
     {
         aware = true;
+    }
+
+    public void Wander()
+    {
+        if(Vector3.Distance(transform.position, wanderPoint) < 2f)
+        {
+            wanderPoint = RandomWanderPoints();
+        }
+        else
+        {
+            agent.SetDestination(wanderPoint);
+        }
+    }
+
+    public Vector3 RandomWanderPoints()
+    {
+        Vector3 randomPoint = (Random.insideUnitSphere * wanderRadius) + transform.position;
+        NavMeshHit navHit;
+        NavMesh.SamplePosition(randomPoint, out navHit, wanderRadius, -1);
+        return new Vector3(navHit.position.x, transform.position.y, transform.position.z);
     }
 }
